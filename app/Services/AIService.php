@@ -37,10 +37,10 @@ EOT;
 
         $response = Http::timeout(300)
             ->withHeaders([
-                'Authorization' => 'Bearer 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',
+                'Authorization' => 'Bearer ' . env('GROQ_API_KEY_DEV'),
                 'Content-Type' => 'application/json'
-            ])->post('https://openrouter.ai/api/v1/chat/completions', [
-                "model" => "qwen/qwen3.6-plus-preview:free",
+            ])->post('https://api.groq.com/openai/v1/chat/completions', [
+                "model" => "openai/gpt-oss-120b",
                 "messages" => [
                     [
                         "role" => "system",

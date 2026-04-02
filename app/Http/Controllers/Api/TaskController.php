@@ -35,7 +35,6 @@ class TaskController extends Controller
         try {
             $aiResult = json_decode($aiService->generateSteps($validated['title']), true);
 
-            // 2. Ambil data utama dari AI (dengan fallback jika AI gagal)
             $mainTitle = $aiResult['tasks']['title'] ?? $validated['title'];
             $mainDescription = $aiResult['tasks']['description'] ?? null;
 
@@ -46,13 +45,8 @@ class TaskController extends Controller
                 'progress_percentage' => 0,
             ]);
 
-            // 4. Looping untuk menyimpan Task Steps (Anaknya)
             $steps = [];
             foreach ($aiResult['task_steps'] as $index => $step) {
-
-                // Filter sederhana untuk membuang baris pembuka jika AI masih bandel
-                if (!is_array($step) || !isset($step['title'])) continue;
-                if (str_contains(strtolower($step['title']), 'berikut adalah')) continue;
 
                 $newStep = TaskStep::create([
                     'task_id' => $task->id,
@@ -68,6 +62,8 @@ class TaskController extends Controller
             }
 
             DB::commit();
+
+            $task->load('taskSteps');
 
             return response()->json([
                 'success' => true,
