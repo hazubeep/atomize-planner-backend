@@ -8,13 +8,19 @@ use App\Models\TaskStep;
 use Illuminate\Http\Request;
 use App\Services\AIService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
-
     public function index()
     {
         $tasks = Task::with('taskSteps')
+            ->withCount([
+                'taskSteps as total_steps',
+                'taskSteps as completed_steps' => function ($query) {
+                    $query->where('is_completed', true);
+                }
+            ])
             ->where('user_id', auth()->id())
             ->get();
 
@@ -27,7 +33,7 @@ class TaskController extends Controller
     public function atomize(Request $request, AIService $aiService)
     {
         $validated = $request->validate([
-            'title' => 'required|string',
+            'title' => 'required',
         ]);
 
         DB::beginTransaction();
@@ -35,13 +41,17 @@ class TaskController extends Controller
         try {
             $aiResult = json_decode($aiService->generateSteps($validated['title']), true);
 
-            $mainTitle = $aiResult['tasks']['title'] ?? $validated['title'];
-            $mainDescription = $aiResult['tasks']['description'] ?? null;
+            $mainTitle = $aiResult['task']['title'] ?? $validated['title'];
+            $mainDescription = $aiResult['task']['description'] ?? null;
+            $mainCategory = $aiResult['task']['category'] ?? null;
+            $mainStatus = $aiResult['task']['status'] ?? null;
 
             $task = Task::create([
                 'user_id' => auth()->id(),
                 'title' => $mainTitle,
                 'description' => $mainDescription,
+                'category' => $mainCategory,
+                'status' => $mainStatus,
                 'progress_percentage' => 0,
             ]);
 
@@ -54,7 +64,7 @@ class TaskController extends Controller
                     'description' => $step['description'] ?? null,
                     'status' => 'pending',
                     'is_completed' => 0,
-                    'is_current_focus' => ($index === 0) ? 1 : 0,
+                    'is_current_focus' =>  0,
                     'estimated_duration' => $step['estimated_duration'] ?? 10,
                     'order' => $index,
                 ]);
@@ -68,61 +78,136 @@ class TaskController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => array_merge($task->toArray(), [
+                    'total_steps' => count($aiResult['task_steps']),
+                    'completed_steps' => 0,
                     'task_steps' => $steps
                 ])
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Gagal sinkronisasi dengan AI'], 500);
+            Log::error('Atomize failed: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code'    => 'AI_SERVICE_ERROR',
+                    'message' => app()->isProduction()
+                        ? 'AI Service is currently unavailable. Please try again later.'
+                        : $e->getMessage(),
+                ]
+            ], 500);
         }
     }
 
-    // public function atomize(Request $request, AIService $ai)
-    // {
-    //     $request->validate([
-    //         'title' => 'required|string'
-    //     ]);
-
-    //     $task = Task::create([
-    //         'user_id' => auth()->id(),
-    //         'title' => $request->title,
-    //         'progress_percentage' => 0
-    //     ]);
-
-    //     $steps = $ai->generateSteps($request->title);
-
-    //     if (is_array($steps)) {
-    //         return response()->json($steps, 500);
-    //     }
-
-
-    //     $steps = explode("\n", $steps);
-
-    //     foreach ($steps as $step) {
-    //         if (trim($step) != '') {
-    //             TaskStep::create([
-    //                 'task_id' => $task->id,
-    //                 'title' => $step,
-    //                 'estimated_duration' => 10
-    //             ]);
-    //         }
-    //     }
-
-    //     return response()->json([
-    //         'task' => $task,
-    //         'micro_steps' => $task->taskSteps
-    //     ]);
-    // }
-
     public function destroy($id)
     {
-
         $task = Task::where('user_id', auth()->id())->findOrFail($id);
-
         $task->delete();
 
-        return [
-            "message" => "Task deleted successfully"
-        ];
+        return response()->json([
+            'success' => true,
+            'message' => 'Task deleted successfully.'
+        ]);
     }
+
+    public function show($id, Request $request)
+    {
+        $task = Task::with('tasksteps')
+            ->withCount([
+                'taskSteps as total_steps',
+                'taskSteps as completed_steps' => function ($query) {
+                    $query->where('is_completed', true);
+                }
+            ])->where('user_id', $request->user()->id)
+            ->find($id);
+
+        if (!$task) {
+            return response()->json([
+                "success" => false,
+                "message" => "Task not found"
+            ], 404);
+        }
+
+        return response()->json([
+            "success" => true,
+            "data" => $task
+        ]);
+    }
+
+    public function update($id, Request $request)
+    {
+        $task = Task::with('tasksteps')
+            ->withCount([
+                'taskSteps as total_steps',
+                'taskSteps as completed_steps' => function ($query) {
+                    $query->where('is_completed', true);
+                }
+            ])->where('user_id', $request->user()->id)->find($id);
+
+        if (!$task) {
+            return response()->json([
+                "success" => false,
+                "message" => "Task not found"
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'title' => 'sometimes',
+            'description' => 'nullable',
+            'category' => 'nullable',
+            'status' => 'nullable',
+        ]);
+
+        $task->update($validated);
+
+        return response()->json([
+            "success" => true,
+            "data" => $task
+        ]);
+    }
+
+    // public function toggle($taskId, $stepId, Request $request)
+    // {
+    // $step = TaskStep::where('id', $stepId)
+    //     ->whereHas('task', function ($q) use ($request, $taskId) {
+    //         $q->where('id', $taskId)
+    //           ->where('user_id', $request->user()->id);
+    //     })
+    //     ->first();
+
+    // if (!$step) {
+    //     return response()->json([
+    //         "success" => false,
+    //         "message" => "Step tidak ditemukan"
+    //     ], 404);
+    // }
+
+    // $step->is_completed = !$step->is_completed;
+    // $step->save();
+
+    // return response()->json([
+    //     "success" => true,
+    //     "data" => $step
+    // ]);
+    // }
+    //
+    /* public function store(Request $request) */
+    /* { */
+    /*     $validated = $request->validate([ */
+    /*         'title' => 'required|string|max:255', */
+    /*         'description' => 'nullable|string' */
+    /*     ]); */
+    /**/
+    /*     $task = Task::create([ */
+    /*         'user_id' => $request->user()->id, */
+    /*         'title' => $validated['title'], */
+    /*         'description' => $validated['description'] ?? null, */
+    /*         'is_completed' => false */
+    /*     ]); */
+    /**/
+    /*     return response()->json([ */
+    /*         "success" => true, */
+    /*         "data" => $task */
+    /*     ]); */
+    /* } */
 }
