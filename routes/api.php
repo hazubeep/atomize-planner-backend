@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TaskStepController;
 use App\Http\Controllers\Api\PasswordController;
+use App\Http\Controllers\Api\FocusSessionController;
 
 Route::prefix('v1')->group(function () {
 
@@ -13,6 +14,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login']);
 
     Route::middleware('auth:sanctum')->group(function () {
+
+        Route::post('/auth/logout', [AuthController::class, 'logout']);
 
         Route::get('/tasks', [TaskController::class, 'index']);
         Route::post('/tasks/atomize', [TaskController::class, 'atomize']);
@@ -35,5 +38,13 @@ Route::prefix('v1')->group(function () {
         Route::delete('/profile/avatar', [ProfileController::class, 'removeAvatar']);
 
         Route::post('/profile/change-password', [PasswordController::class, 'update']);
+
+        Route::prefix('/focus')->group(function () {
+            Route::post('/sessions', [FocusSessionController::class, 'store']);
+            Route::post('/sessions/active', [FocusSessionController::class, 'active']);
+            Route::post('/sessions/{session}/complete', [FocusSessionController::class, 'complete']);
+            Route::post('/sessions/{session}/cancel', [FocusSessionController::class, 'cancel']);
+            Route::post('/sessions/{session}/settings', [FocusSessionController::class, 'updateSettings']);
+        });
     });
 });
