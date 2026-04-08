@@ -9,7 +9,6 @@ class TaskStepObserver
 {
     public function updated(TaskStep $taskStep)
     {
-        // Only trigger if is_completed changed
         if ($taskStep->wasChanged('is_completed') && $taskStep->is_completed) {
             $task = $taskStep->task;
             if ($task) {

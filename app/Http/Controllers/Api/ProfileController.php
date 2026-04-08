@@ -12,9 +12,12 @@ class ProfileController extends Controller
     public function show(Request $request)
     {
 
+        $user = $request->user();
+        $data = $user->only(['id', 'name', 'email', 'created_at', 'updated_at']);
+        $data['avatar_url'] = $user->avatar_url;
         return response()->json([
-            'succes' => true,
-            'data' => $request->user()
+            'success' => true,
+            'data' => $data
         ], 200);
     }
 
