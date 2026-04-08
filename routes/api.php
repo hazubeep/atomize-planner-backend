@@ -41,10 +41,10 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('/focus')->group(function () {
             Route::post('/sessions', [FocusSessionController::class, 'store']);
-            Route::post('/sessions/active', [FocusSessionController::class, 'active']);
+            Route::get('/sessions/active', [FocusSessionController::class, 'active']);
             Route::post('/sessions/{session}/complete', [FocusSessionController::class, 'complete']);
             Route::post('/sessions/{session}/cancel', [FocusSessionController::class, 'cancel']);
-            Route::post('/sessions/{session}/settings', [FocusSessionController::class, 'updateSettings']);
+            Route::patch('/sessions/{session}/settings', [FocusSessionController::class, 'updateSettings']);
         });
     });
 });
