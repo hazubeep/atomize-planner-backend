@@ -1,0 +1,1687 @@
+openapi: 3.0.3
+info:
+  title: AtomizePlanner API
+  description: |
+    Complete API contract for AtomizePlanner — a task management system that uses AI
+    to break down complex tasks into manageable micro-steps to reduce cognitive load
+    and procrastination.
+
+    **Covered features:**
+    - **Authentication** — register, login, logout (Laravel Sanctum)
+    - **Tasks** — task management, AI atomization, and micro-step lifecycle
+    - **Profile Settings** — account details & avatar management
+    - **Security** — password change & account deletion
+    - **Growth History** — weekly momentum & completed tasks
+    - **Deep Focus Mode** — Pomodoro-style focus sessions
+
+    **Naming convention:**
+    - `task` — a high-level objective the user wants to achieve
+    - `task_step` — a micro-step that belongs to a task (manual or AI-generated)
+  version: 4.0.0
+  contact:
+    name: AtomizePlanner API Support
+    url: https://atomizeplanner.com/support
+    email: support@atomizeplanner.com
+
+servers:
+  - url: https://api.atomizeplanner.com/v1
+    description: Production Server
+  - url: https://staging-api.atomizeplanner.com/v1
+    description: Staging Server
+
+tags:
+  - name: Authentication
+    description: User registration, login, and logout
+  - name: Tasks
+    description: Task management, AI atomization, and micro-step lifecycle
+  - name: Profile
+    description: User account details and avatar management
+  - name: Security
+    description: Password change and account deletion
+  - name: History
+    description: Growth history, weekly momentum, and completed tasks
+  - name: Focus
+    description: Deep Focus Mode sessions with Pomodoro timer
+
+security:
+  - BearerAuth: []
+
+paths:
+
+  # ────────────────────────────────────────────
+  # AUTHENTICATION
+  # ────────────────────────────────────────────
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a new user
+      description: Creates a new user account and returns an authentication token.
+      operationId: registerUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, password_confirmation]
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: securepassword123
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: securepassword123
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login user
+      description: Authenticates a user and returns a Bearer token for subsequent requests.
+      operationId: loginUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthCredentials"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout user
+      description: Revokes the current Bearer token and ends the user's session.
+      operationId: logoutUser
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Successfully logged out"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ────────────────────────────────────────────
+  # TASKS
+  # ────────────────────────────────────────────
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: List all tasks
+      description: Returns all tasks belonging to the authenticated user, with their steps and progress.
+      operationId: listTasks
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Filter tasks by status
+          schema:
+            type: string
+            enum: [active, completed, archived]
+            example: active
+      responses:
+        "200":
+          description: Tasks retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskListResponse"
+              example:
+                success: true
+                data:
+                  - id: 1
+                    title: "Write Research Paper on AI Ethics"
+                    description: "A comprehensive paper on AI ethics for final semester."
+                    status: "active"
+                    progress_percentage: 42
+                    total_steps: 7
+                    completed_steps: 3
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tasks/atomize:
+    post:
+      tags: [Tasks]
+      summary: Create a task and atomize it using AI
+      description: |
+        The core "Magic" endpoint. Sends a task title to the backend which interacts
+        with an LLM and returns the created task together with AI-generated task steps.
+        This is the fast-track alternative to manually creating a task and adding steps one by one.
+      operationId: atomizeTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                  description: The high-level task to break down into steps
+                  example: "Deep clean the kitchen"
+      responses:
+        "201":
+          description: Task created and atomized successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDetailResponse"
+              example:
+                success: true
+                data:
+                  id: 10
+                  title: "Deep clean the kitchen"
+                  description: "Focus especially on organizing the pantry and cleaning the fridge."
+                  status: "active"
+                  progress_percentage: 0
+                  total_steps: 4
+                  completed_steps: 0
+                  task_steps:
+                    - id: 1
+                      task_id: 10
+                      title: "Empty the dishwasher"
+                      description: "Put away all clean dishes to clear space."
+                      status: "current"
+                      is_current_focus: true
+                      estimated_duration: 10
+                      order: 1
+                    - id: 2
+                      task_id: 10
+                      title: "Wipe down all countertops"
+                      description: null
+                      status: "pending"
+                      estimated_duration: 15
+                      order: 2
+                    - id: 3
+                      task_id: 10
+                      title: "Clean the stovetop and oven"
+                      description: "Use degreaser for the tough spots."
+                      status: "pending"
+                      estimated_duration: 20
+                      order: 3
+                    - id: 4
+                      task_id: 10
+                      title: "Mop the floor"
+                      description: null
+                      status: "pending"
+                      estimated_duration: 15
+                      order: 4
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          description: AI Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                error:
+                  code: "AI_SERVICE_UNAVAILABLE"
+                  message: "AI Service is currently unavailable. Please try again later."
+
+  /tasks/{taskId}:
+    get:
+      tags: [Tasks]
+      summary: Get task detail
+      description: |
+        Returns the full detail of a single task, including all steps, completion status,
+        current focus step, AI suggestion, and complexity alert (if any).
+      operationId: getTaskDetail
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+      responses:
+        "200":
+          description: Task detail retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDetailResponse"
+              example:
+                success: true
+                data:
+                  id: 10
+                  title: "Write Research Paper on AI Ethics"
+                  description: "A comprehensive paper on AI ethics."
+                  status: "active"
+                  progress_percentage: 42
+                  total_steps: 7
+                  completed_steps: 3
+                  task_steps:
+                    - id: 1
+                      task_id: 10
+                      title: "Define the core scope and research questions"
+                      description: null
+                      status: "completed"
+                      is_current_focus: false
+                      order: 1
+                    - id: 3
+                      task_id: 10
+                      title: "Outline the ethical implications of Large Language Models"
+                      description: "Focus on data privacy, algorithmic bias, and environmental impact."
+                      status: "current"
+                      is_current_focus: true
+                      order: 3
+                  ai_suggestion:
+                    message: "You've spent 4 hours on research today. Consider a 15-minute cognitive break before drafting."
+                  complexity_alert:
+                    step_id: 5
+                    step_title: "Case Studies"
+                    message: "Step 5 seems broad. Would you like to break it into specific industries?"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      tags: [Tasks]
+      summary: Update a task
+      description: Updates the title, description, or status of an existing task.
+      operationId: updateTask
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTaskRequest"
+      responses:
+        "200":
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDetailResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      tags: [Tasks]
+      summary: Delete a task
+      description: Permanently removes a task and all its associated steps.
+      operationId: deleteTask
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+      responses:
+        "200":
+          description: Task deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMessageResponse"
+              example:
+                success: true
+                message: "Task deleted successfully."
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ────────────────────────────────────────────
+  # TASK STEPS
+  # ────────────────────────────────────────────
+  /tasks/{taskId}/steps:
+    post:
+      tags: [Tasks]
+      summary: Add a step to a task
+      description: Manually appends a new step to an existing task.
+      operationId: addTaskStep
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaskStepRequest"
+            example:
+              title: "Review existing literature on AI bias"
+              description: "Focus on papers from 2021-2024 covering algorithmic fairness."
+              estimated_duration: 30
+              order: 4
+      responses:
+        "201":
+          description: Step added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskStepResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tasks/{taskId}/steps/{stepId}/toggle:
+    patch:
+      tags: [Tasks]
+      summary: Toggle step completion
+      description: |
+        Toggles the completion status of a step between `pending` and `completed`.
+        If `is_completed` is explicitly provided, it sets that value directly;
+        otherwise the server toggles the current state.
+      operationId: toggleTaskStep
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+        - $ref: "#/components/parameters/stepId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_completed:
+                  type: boolean
+                  description: Explicitly set completion. Omit to toggle current state.
+                  example: true
+      responses:
+        "200":
+          description: Step status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskStepResponse"
+              example:
+                success: true
+                data:
+                  id: 3
+                  task_id: 10
+                  title: "Outline the ethical implications of Large Language Models"
+                  description: "Focus on data privacy, algorithmic bias, and environmental impact."
+                  status: "completed"
+                  is_completed: true
+                  is_current_focus: false
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tasks/{taskId}/steps/{stepId}:
+    patch:
+      tags: [Tasks]
+      summary: Update a task step
+      description: Updates the title, description, estimated duration, or order of an existing step.
+      operationId: updateTaskStep
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+        - $ref: "#/components/parameters/stepId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTaskStepRequest"
+            example:
+              title: "Outline ethical implications of LLMs (revised)"
+              description: "Add section on environmental impact of training runs."
+              estimated_duration: 45
+      responses:
+        "200":
+          description: Step updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskStepResponse"
+              example:
+                success: true
+                message: "Step updated successfully."
+                data:
+                  id: 3
+                  task_id: 10
+                  title: "Outline ethical implications of LLMs (revised)"
+                  description: "Add section on environmental impact of training runs."
+                  estimated_duration: 45
+                  status: "current"
+                  is_current_focus: true
+                  order: 3
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags: [Tasks]
+      summary: Delete a task step
+      description: Permanently removes a single step from a task.
+      operationId: deleteTaskStep
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+        - $ref: "#/components/parameters/stepId"
+      responses:
+        "200":
+          description: Step deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMessageResponse"
+              example:
+                success: true
+                message: "Step deleted successfully."
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tasks/{taskId}/steps/{stepId}/mark-working:
+    post:
+      tags: [Tasks]
+      summary: Mark step as in progress
+      description: |
+        Sets a step's status to `in_progress` and marks it as the current focus.
+        Only one step per task can be the current focus at a time.
+        Triggered by the "Mark Working" button on the active step card.
+      operationId: markStepWorking
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+        - $ref: "#/components/parameters/stepId"
+      responses:
+        "200":
+          description: Step marked as in progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskStepResponse"
+              example:
+                success: true
+                data:
+                  id: 3
+                  task_id: 10
+                  title: "Outline the ethical implications of Large Language Models"
+                  description: "Focus on data privacy, algorithmic bias, and environmental impact."
+                  status: "in_progress"
+                  is_current_focus: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ────────────────────────────────────────────
+  # PROFILE SETTINGS
+  # ────────────────────────────────────────────
+  /profile:
+    get:
+      tags: [Profile]
+      summary: Get profile
+      description: Retrieves the authenticated user's full profile data.
+      operationId: getProfile
+      responses:
+        "200":
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      tags: [Profile]
+      summary: Update profile
+      description: Updates the user's full name and/or email. At least one field must be provided.
+      operationId: updateProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+      responses:
+        "200":
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: Email already in use by another account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                error:
+                  code: "EMAIL_ALREADY_EXISTS"
+                  message: "The email address is already associated with another account."
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      tags: [Security]
+      summary: Delete account
+      description: |
+        Permanently deletes the user's account and all associated data.
+        This action is irreversible. Requires current password confirmation.
+      operationId: deleteAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteAccountRequest"
+      responses:
+        "200":
+          description: Account deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMessageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Current password is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                error:
+                  code: "INVALID_CURRENT_PASSWORD"
+                  message: "The current password you entered is incorrect."
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /profile/avatar:
+    post:
+      tags: [Profile]
+      summary: Upload or change profile photo
+      description: Uploads or replaces the profile photo. Accepts JPG, PNG, or WEBP up to 5 MB.
+      operationId: uploadAvatar
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadAvatarRequest"
+      responses:
+        "200":
+          description: Profile photo updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvatarResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "413":
+          description: File exceeds 5 MB limit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                error:
+                  code: "FILE_TOO_LARGE"
+                  message: "File size exceeds the maximum limit of 5MB."
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      tags: [Profile]
+      summary: Remove profile photo
+      description: Removes the profile photo and resets it to the default avatar.
+      operationId: removeAvatar
+      responses:
+        "200":
+          description: Profile photo removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvatarResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /profile/change-password:
+    post:
+      tags: [Security]
+      summary: Change password
+      description: |
+        Changes the user's password. Current password is required for verification.
+        New password must be at least 8 characters and match the confirmation field.
+      operationId: changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "200":
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMessageResponse"
+              example:
+                success: true
+                message: "Password changed successfully. Please log in again."
+        "400":
+          description: New password and confirmation do not match
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                error:
+                  code: "PASSWORD_MISMATCH"
+                  message: "New password and confirmation password do not match."
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Current password is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                error:
+                  code: "INVALID_CURRENT_PASSWORD"
+                  message: "The current password you entered is incorrect."
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ────────────────────────────────────────────
+  # GROWTH HISTORY
+  # ────────────────────────────────────────────
+  /history/summary:
+    get:
+      tags: [History]
+      summary: Get weekly momentum summary
+      description: |
+        Returns the weekly momentum summary including steps completed per day
+        (for bar chart) and core task achievement statistics.
+      operationId: getWeeklySummary
+      parameters:
+        - name: week_offset
+          in: query
+          required: false
+          description: Week offset from current (0 = this week, 1 = last week, etc.)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        "200":
+          description: Weekly summary retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklySummaryResponse"
+              example:
+                success: true
+                data:
+                  week_label: "Oct 16 – Oct 22, 2023"
+                  total_steps_completed: 78
+                  daily_breakdown:
+                    - day: "Mon"
+                      count: 8
+                    - day: "Tue"
+                      count: 14
+                    - day: "Fri"
+                      count: 20
+                  achievements:
+                    tasks_completed: 3
+                    completion_percentage: 75
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /history/completed-tasks:
+    get:
+      tags: [History]
+      summary: Get completed tasks history
+      description: |
+        Returns a paginated list of completed tasks, ordered by most recently completed.
+        Supports pagination via the "Show Older History" button.
+      operationId: getCompletedTasksHistory
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 50
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [STRATEGY, DEVELOPMENT, PLANNING, DESIGN, RESEARCH, MARKETING, OTHER]
+      responses:
+        "200":
+          description: Completed tasks history retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompletedTasksResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ────────────────────────────────────────────
+  # DEEP FOCUS MODE
+  # ────────────────────────────────────────────
+  /focus/sessions:
+    post:
+      tags: [Focus]
+      summary: Start a focus session
+      description: |
+        Starts a new Deep Focus session for a specific task step.
+        Triggered by the "Start Session" button on the Deep Focus Mode page.
+      operationId: startFocusSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartFocusSessionRequest"
+            example:
+              task_id: 10
+              step_id: 3
+              duration_minutes: 25
+              session_notes: "Focus on the clarity of the opening sentence."
+      responses:
+        "201":
+          description: Focus session started successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FocusSessionResponse"
+              example:
+                success: true
+                data:
+                  session_id: 1
+                  task_id: 10
+                  step_id: 3
+                  objective: "Outline the ethical implications of Large Language Models"
+                  duration_minutes: 25
+                  started_at: "2025-03-30T09:00:00Z"
+                  ends_at: "2025-03-30T09:25:00Z"
+                  status: "active"
+                  deep_focus_active: true
+                  session_notes: "Focus on the clarity of the opening sentence."
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: User already has an active focus session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                error:
+                  code: "SESSION_ALREADY_ACTIVE"
+                  message: "You already have an active focus session. Please complete or cancel it first."
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /focus/sessions/active:
+    get:
+      tags: [Focus]
+      summary: Get active focus session
+      description: |
+        Returns the currently active focus session. Used to restore the
+        Deep Focus Mode page after a browser refresh. Returns 204 if none active.
+      operationId: getActiveFocusSession
+      responses:
+        "200":
+          description: Active session retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FocusSessionResponse"
+        "204":
+          description: No active focus session
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /focus/sessions/{sessionId}/complete:
+    post:
+      tags: [Focus]
+      summary: Complete a focus session
+      description: |
+        Ends the focus session and marks the associated step as completed.
+        Triggered by the "Mark as Done" button.
+      operationId: completeFocusSession
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "200":
+          description: Session completed and step marked as done
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FocusSessionCompleteResponse"
+              example:
+                success: true
+                message: "Focus session completed. Step marked as done."
+                data:
+                  session_id: 1
+                  step_id: 3
+                  step_status: "completed"
+                  task_progress_percentage: 57
+                  completed_at: "2025-03-30T09:23:00Z"
+                  actual_duration_minutes: 23
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Session already ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                error:
+                  code: "SESSION_ALREADY_ENDED"
+                  message: "This session has already been completed or cancelled."
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /focus/sessions/{sessionId}/cancel:
+    post:
+      tags: [Focus]
+      summary: Cancel a focus session
+      description: |
+        Cancels the session without marking the step as completed.
+        Triggered by the reset button (circular arrow icon).
+      operationId: cancelFocusSession
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Optional cancellation reason for analytics.
+                  example: "Interrupted by meeting"
+      responses:
+        "200":
+          description: Session cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMessageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /focus/sessions/{sessionId}/settings:
+    patch:
+      tags: [Focus]
+      summary: Update focus session settings
+      description: |
+        Updates settings of an active session (e.g. timer duration, notes).
+        Triggered by the settings (gear) icon on the Deep Focus Mode page.
+      operationId: updateFocusSessionSettings
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFocusSettingsRequest"
+      responses:
+        "200":
+          description: Session settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FocusSessionResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+# ╔══════════════════════════════════════════════════════╗
+# ║                    COMPONENTS                       ║
+# ╚══════════════════════════════════════════════════════╝
+components:
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Laravel Sanctum Bearer Token obtained from /auth/login or /auth/register.
+
+  parameters:
+    taskId:
+      name: taskId
+      in: path
+      required: true
+      description: Unique task ID
+      schema:
+        type: integer
+        example: 10
+
+    stepId:
+      name: stepId
+      in: path
+      required: true
+      description: Unique task step ID
+      schema:
+        type: integer
+        example: 3
+
+    sessionId:
+      name: sessionId
+      in: path
+      required: true
+      description: Unique focus session ID
+      schema:
+        type: integer
+        example: 1
+
+  schemas:
+
+    # ─ Auth ─
+    AuthCredentials:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          format: password
+          example: securepassword123
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+          example: "1|laravelSanctumTokenString..."
+
+    # ─ User ─
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Eleanor Vance"
+        email:
+          type: string
+          format: email
+          example: "eleanor.vance@example.com"
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://cdn.atomizeplanner.com/avatars/1.jpg"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ─ Task Step ─
+    TaskStep:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 3
+        task_id:
+          type: integer
+          example: 10
+        parent_step_id:
+          type: integer
+          nullable: true
+          description: Set when this step was generated by re-atomize
+          example: null
+        title:
+          type: string
+          example: "Outline the ethical implications of Large Language Models"
+        description:
+          type: string
+          nullable: true
+          description: Optional details or instructions for this specific step.
+          example: "Focus on data privacy, algorithmic bias, and environmental impact."
+        status:
+          type: string
+          enum: [pending, current, in_progress, completed]
+          example: "current"
+        is_completed:
+          type: boolean
+          example: false
+        is_current_focus:
+          type: boolean
+          example: true
+        estimated_duration:
+          type: integer
+          nullable: true
+          description: Estimated completion time in minutes
+          example: 30
+        order:
+          type: integer
+          example: 3
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ─ Task ─
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        user_id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Write Research Paper on AI Ethics"
+        description:
+          type: string
+          nullable: true
+          description: Optional overarching description or context for the whole task.
+          example: "A comprehensive paper on AI ethics for my final semester."
+        category:
+          type: string
+          nullable: true
+          enum: [STRATEGY, DEVELOPMENT, PLANNING, DESIGN, RESEARCH, MARKETING, OTHER]
+          example: "RESEARCH"
+        status:
+          type: string
+          enum: [active, completed, archived]
+          example: "active"
+        progress_percentage:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 42
+        total_steps:
+          type: integer
+          example: 7
+        completed_steps:
+          type: integer
+          example: 3
+        task_steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskStep"
+        ai_suggestion:
+          $ref: "#/components/schemas/AiSuggestion"
+        complexity_alert:
+          $ref: "#/components/schemas/ComplexityAlert"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AiSuggestion:
+      type: object
+      nullable: true
+      properties:
+        message:
+          type: string
+          example: "You've spent 4 hours on research today. Consider a 15-minute cognitive break."
+
+    ComplexityAlert:
+      type: object
+      nullable: true
+      properties:
+        step_id:
+          type: integer
+          example: 5
+        step_title:
+          type: string
+          example: "Case Studies"
+        message:
+          type: string
+          example: "This step seems broad. Would you like to break it into specific sub-steps?"
+
+    # ─ Request Bodies ─
+    CreateTaskRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 200
+          example: "Write Research Paper on AI Ethics"
+        description:
+          type: string
+          maxLength: 1000
+          example: "Detailed context goes here."
+        category:
+          type: string
+          enum: [STRATEGY, DEVELOPMENT, PLANNING, DESIGN, RESEARCH, MARKETING, OTHER]
+          example: "RESEARCH"
+
+    UpdateTaskRequest:
+      type: object
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+        category:
+          type: string
+          enum: [STRATEGY, DEVELOPMENT, PLANNING, DESIGN, RESEARCH, MARKETING, OTHER]
+        status:
+          type: string
+          enum: [active, completed, archived]
+
+    CreateTaskStepRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 300
+          example: "Review existing literature on AI bias"
+        description:
+          type: string
+          maxLength: 500
+          example: "Focus on papers from 2021-2024 covering algorithmic fairness."
+        estimated_duration:
+          type: integer
+          minimum: 1
+          description: Estimated time in minutes
+          example: 30
+        order:
+          type: integer
+          description: Position in the list. Appended to the end if omitted.
+          example: 4
+
+    UpdateTaskStepRequest:
+      type: object
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 300
+          example: "Outline ethical implications of LLMs (revised)"
+        description:
+          type: string
+          nullable: true
+          maxLength: 500
+          example: "Add section on environmental impact of training runs."
+        estimated_duration:
+          type: integer
+          minimum: 1
+          example: 45
+        order:
+          type: integer
+          description: New position in the step list.
+          example: 2
+
+    UpdateProfileRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: "Eleanor Vance"
+        email:
+          type: string
+          format: email
+          example: "eleanor.vance@example.com"
+
+    UploadAvatarRequest:
+      type: object
+      required: [avatar]
+      properties:
+        avatar:
+          type: string
+          format: binary
+          description: Image file (JPG, PNG, or WEBP — max 5 MB)
+
+    ChangePasswordRequest:
+      type: object
+      required: [current_password, new_password, confirm_new_password]
+      properties:
+        current_password:
+          type: string
+          format: password
+        new_password:
+          type: string
+          format: password
+          minLength: 8
+        confirm_new_password:
+          type: string
+          format: password
+          minLength: 8
+
+    DeleteAccountRequest:
+      type: object
+      required: [current_password]
+      properties:
+        current_password:
+          type: string
+          format: password
+
+    StartFocusSessionRequest:
+      type: object
+      required: [task_id, step_id]
+      properties:
+        task_id:
+          type: integer
+          example: 10
+        step_id:
+          type: integer
+          example: 3
+        duration_minutes:
+          type: integer
+          default: 25
+          minimum: 5
+          maximum: 120
+        session_notes:
+          type: string
+          maxLength: 500
+
+    UpdateFocusSettingsRequest:
+      type: object
+      minProperties: 1
+      properties:
+        duration_minutes:
+          type: integer
+          minimum: 5
+          maximum: 120
+        session_notes:
+          type: string
+          maxLength: 500
+
+    # ─ History ─
+    DailyBreakdown:
+      type: object
+      properties:
+        day:
+          type: string
+          example: "Mon"
+        count:
+          type: integer
+          example: 8
+
+    WeeklySummary:
+      type: object
+      properties:
+        week_label:
+          type: string
+          example: "Oct 16 – Oct 22, 2023"
+        total_steps_completed:
+          type: integer
+          example: 78
+        daily_breakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyBreakdown"
+        achievements:
+          type: object
+          properties:
+            tasks_completed:
+              type: integer
+              example: 3
+            completion_percentage:
+              type: integer
+              example: 75
+
+    CompletedTaskSnapshot:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        task_id:
+          type: integer
+          example: 10
+        title:
+          type: string
+          example: "Rebrand Visual Identity System"
+        description:
+          type: string
+          nullable: true
+        category:
+          type: string
+          enum: [STRATEGY, DEVELOPMENT, PLANNING, DESIGN, RESEARCH, MARKETING, OTHER]
+          example: "STRATEGY"
+        steps_count:
+          type: integer
+          example: 12
+        completed_at:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+        total_pages:
+          type: integer
+          example: 4
+        total_items:
+          type: integer
+          example: 38
+        has_next_page:
+          type: boolean
+          example: true
+
+    # ─ Focus Session ─
+    FocusSession:
+      type: object
+      properties:
+        session_id:
+          type: integer
+          example: 1
+        task_id:
+          type: integer
+          example: 10
+        step_id:
+          type: integer
+          example: 3
+        objective:
+          type: string
+          description: Title of the step being focused on
+          example: "Outline the ethical implications of Large Language Models"
+        duration_minutes:
+          type: integer
+          example: 25
+        session_notes:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, completed, cancelled]
+          example: "active"
+        deep_focus_active:
+          type: boolean
+          example: true
+        started_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+
+    FocusSessionComplete:
+      type: object
+      properties:
+        session_id:
+          type: integer
+        step_id:
+          type: integer
+        step_status:
+          type: string
+          enum: [completed]
+        task_progress_percentage:
+          type: integer
+        completed_at:
+          type: string
+          format: date-time
+        actual_duration_minutes:
+          type: integer
+
+    # ─ Response Wrappers ─
+    TaskListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+
+    TaskDetailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/Task"
+
+    TaskStepResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/TaskStep"
+
+    ProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/User"
+
+    AvatarResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            avatar_url:
+              type: string
+              format: uri
+
+    WeeklySummaryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/WeeklySummary"
+
+    CompletedTasksResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/CompletedTaskSnapshot"
+            pagination:
+              $ref: "#/components/schemas/Pagination"
+
+    FocusSessionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/FocusSession"
+
+    FocusSessionCompleteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          $ref: "#/components/schemas/FocusSessionComplete"
+
+    SuccessMessageResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "NOT_FOUND"
+            message:
+              type: string
+              example: "The requested resource was not found."
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
