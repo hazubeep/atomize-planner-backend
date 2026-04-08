@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('category')
                 ->nullable()
                 ->comment("Default: strategy, development, planning, design, research, marketing, other");
-            $table->integer('progress_percentage')->default(0);
             $table->timestamps();
             $table->index(['user_id', 'status']);
         });
@@ -31,7 +30,7 @@ return new class extends Migration
      * Reverse the migrations.
      */
     public function down(): void
-    {d
+    {
         Schema::dropIfExists('tasks');
     }
 };
