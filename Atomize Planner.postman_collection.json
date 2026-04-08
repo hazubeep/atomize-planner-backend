@@ -1,812 +1,1053 @@
 {
-	"info": {
-		"_postman_id": "381f200d-2b6f-4ff7-81b4-8aa323e4e3d2",
-		"name": "Atomize Planner",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "39470449"
-	},
-	"item": [
-		{
-			"name": "Tasks",
-			"item": [
-				{
-					"name": "List all tasks",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "javascript"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/tasks",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"tasks"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generate task",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\":\"saya ingin belajar php dengan fokus kepada seluruh sintaksis nya dulu\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/tasks/atomize",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"tasks",
-								"atomize"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get detail task",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/tasks/1",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"tasks",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update a Task",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"category\": \"strategy\",\n  \"status\": \"active\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/tasks/1",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"tasks",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete a task",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "https://{{url}}/tasks/1",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"tasks",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a step to a task",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Review existing literature on AI bias\",\n  \"description\": \"Focus on papers from 2021-2024 covering algorithmic fairness.\",\n  \"estimated_duration\": 30,\n  \"order\": 4\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/tasks/2/steps",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"tasks",
-								"2",
-								"steps"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Toggle step completion",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"is_completed\": true\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/tasks/2/steps/10/toggle",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"tasks",
-								"2",
-								"steps",
-								"10",
-								"toggle"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update a task step",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Outline ethical implications of LLMs (revised)\",\n  \"description\": \"Add section on environmental impact of training runs.\",\n  \"status\":\"pending\",\n  \"estimated_duration\": 45\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/tasks/1/steps/2",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"tasks",
-								"1",
-								"steps",
-								"2"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete a task step",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "https://{{url}}/tasks/1/steps/1",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"tasks",
-								"1",
-								"steps",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Mark step as working",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "https://{{url}}/tasks/1/steps/2/mark-working",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"tasks",
-								"1",
-								"steps",
-								"2",
-								"mark-working"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Auth",
-			"item": [
-				{
-					"name": "Register",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"testuser\",\n    \"email\": \"test@test.com\",\n    \"password\": \"test1234\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/auth/register",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Login",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"test1234\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/auth/login",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Profile",
-			"item": [
-				{
-					"name": "Get Profile Information",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "3|dMMWTqC59AvVOnJIYs98v2UzZUJz9zD7tkENrJyOdfc39195",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "https://{{url}}/profile",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"profile"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Profile Information",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "3|dMMWTqC59AvVOnJIYs98v2UzZUJz9zD7tkENrJyOdfc39195",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n   \"name\": \"testasep\",\n   \"email\": \"test@gmail.com\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/profile",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"profile"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Upload Profile Picture",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "3|dMMWTqC59AvVOnJIYs98v2UzZUJz9zD7tkENrJyOdfc39195",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "avatar",
-									"type": "file",
-									"src": "postman-cloud:///1f0ca0b0-195c-4950-8e23-40589594e622"
-								}
-							]
-						},
-						"url": {
-							"raw": "https://{{url}}/profile/avatar",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"profile",
-								"avatar"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Profile Picture",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "3|dMMWTqC59AvVOnJIYs98v2UzZUJz9zD7tkENrJyOdfc39195",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "https://{{url}}/profile/avatar",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"profile",
-								"avatar"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Security",
-			"item": [
-				{
-					"name": "Change Password",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "3|dMMWTqC59AvVOnJIYs98v2UzZUJz9zD7tkENrJyOdfc39195",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n \"current_password\": \"test1234\",\n \"new_password\": \"12345678\",\n  \"new_password_confirmation\": \"12345678\"\n\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/profile/change-password",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"profile",
-								"change-password"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Account",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "7|8jsWn4zpBGC5Ulay0DJUNlIczuFlXsnb1rOUCAFB84946991",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"current_password\": \"test1234\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{url}}/profile",
-							"protocol": "https",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"profile"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	]
+  "info": {
+    "_postman_id": "381f200d-2b6f-4ff7-81b4-8aa323e4e3d2",
+    "name": "Atomize Planner",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "39470449"
+  },
+  "item": [
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "List all tasks",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "javascript"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/tasks",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "tasks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\":\"saya ingin belajar php dengan fokus kepada seluruh sintaksis nya dulu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/tasks/atomize",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "tasks",
+                "atomize"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get detail task",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/tasks/1",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "tasks",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a Task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"category\": \"strategy\",\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/tasks/1",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "tasks",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://{{url}}/tasks/1",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "tasks",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add a step to a task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Review existing literature on AI bias\",\n  \"description\": \"Focus on papers from 2021-2024 covering algorithmic fairness.\",\n  \"estimated_duration\": 30,\n  \"order\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/tasks/2/steps",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "tasks",
+                "2",
+                "steps"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle step completion",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_completed\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/tasks/2/steps/10/toggle",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "tasks",
+                "2",
+                "steps",
+                "10",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a task step",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Outline ethical implications of LLMs (revised)\",\n  \"description\": \"Add section on environmental impact of training runs.\",\n  \"status\":\"pending\",\n  \"estimated_duration\": 45\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/tasks/1/steps/2",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "tasks",
+                "1",
+                "steps",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a task step",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://{{url}}/tasks/1/steps/1",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "tasks",
+                "1",
+                "steps",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark step as working",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://{{url}}/tasks/1/steps/2/mark-working",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "tasks",
+                "1",
+                "steps",
+                "2",
+                "mark-working"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"testuser\",\n    \"email\": \"test@test.com\",\n    \"password\": \"test1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/auth/register",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"test1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/auth/login",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://{{url}}/auth/logout",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Get Profile Information",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "3|dMMWTqC59AvVOnJIYs98v2UzZUJz9zD7tkENrJyOdfc39195",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://{{url}}/profile",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile Information",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "3|dMMWTqC59AvVOnJIYs98v2UzZUJz9zD7tkENrJyOdfc39195",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n   \"name\": \"testasep\",\n   \"email\": \"test@gmail.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/profile",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Profile Picture",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "3|dMMWTqC59AvVOnJIYs98v2UzZUJz9zD7tkENrJyOdfc39195",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "773a5438-7806-480e-b996-b85d9cc6534a",
+                  "src": "postman-cloud:///1f0ca0b0-195c-4950-8e23-40589594e622"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://{{url}}/profile/avatar",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "profile",
+                "avatar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Profile Picture",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "3|dMMWTqC59AvVOnJIYs98v2UzZUJz9zD7tkENrJyOdfc39195",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "https://{{url}}/profile/avatar",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "profile",
+                "avatar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Security",
+      "item": [
+        {
+          "name": "Change Password",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "3|dMMWTqC59AvVOnJIYs98v2UzZUJz9zD7tkENrJyOdfc39195",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n \"current_password\": \"test1234\",\n \"new_password\": \"12345678\",\n  \"new_password_confirmation\": \"12345678\"\n\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/profile/change-password",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "profile",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Account",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "7|8jsWn4zpBGC5Ulay0DJUNlIczuFlXsnb1rOUCAFB84946991",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"current_password\": \"test1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/profile",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Focus",
+      "item": [
+        {
+          "name": "Start a focus session",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"task_id\": 3,\n    \"step_id\": 17,\n    \"duration_minutes\": 25,\n    \"session_notes\": \"Focus on the clarity of the opening sentence.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/focus/sessions",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "focus",
+                "sessions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get active focus session",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://{{url}}/focus/sessions/active",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "focus",
+                "sessions",
+                "active"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete a focus session",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://{{url}}/focus/sessions/2/complete",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "focus",
+                "sessions",
+                "2",
+                "complete"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel a focus session",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://{{url}}/focus/sessions/3/cancel",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "focus",
+                "sessions",
+                "3",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update focus session settings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"duration_minutes\": 12,\n    \"session_notes\": \"strin12g\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{url}}/focus/sessions/4/settings",
+              "protocol": "https",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "focus",
+                "sessions",
+                "4",
+                "settings"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
 }
