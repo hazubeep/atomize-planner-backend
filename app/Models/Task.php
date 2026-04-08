@@ -17,7 +17,6 @@ class Task extends Model
         'description',
         'category',
         'status',
-        'progress_percentage'
     ];
 
     public function taskSteps()

@@ -52,7 +52,6 @@ class TaskController extends Controller
                 'description' => $mainDescription,
                 'category' => strtolower($mainCategory),
                 'status' => strtolower($mainStatus),
-                'progress_percentage' => 0,
             ]);
 
             $steps = [];
