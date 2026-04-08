@@ -50,8 +50,8 @@ class TaskController extends Controller
                 'user_id' => auth()->id(),
                 'title' => $mainTitle,
                 'description' => $mainDescription,
-                'category' => $mainCategory,
-                'status' => $mainStatus,
+                'category' => strtolower($mainCategory),
+                'status' => strtolower($mainStatus),
                 'progress_percentage' => 0,
             ]);
 

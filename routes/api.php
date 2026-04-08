@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TaskStepController;
 use App\Http\Controllers\Api\PasswordController;
 use App\Http\Controllers\Api\FocusSessionController;
+use App\Http\Controllers\HistoryController;
 
 Route::prefix('v1')->group(function () {
 
@@ -45,6 +46,11 @@ Route::prefix('v1')->group(function () {
             Route::post('/sessions/{session}/complete', [FocusSessionController::class, 'complete']);
             Route::post('/sessions/{session}/cancel', [FocusSessionController::class, 'cancel']);
             Route::patch('/sessions/{session}/settings', [FocusSessionController::class, 'updateSettings']);
+        });
+
+        Route::prefix('/history')->group(function () {
+            Route::get('/summary', [HistoryController::class, 'getWeeklySummary']);
+            Route::get('/completed-tasks', [HistoryController::class, 'getCompletedTasks']);
         });
     });
 });
