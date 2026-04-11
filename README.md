@@ -1,91 +1,113 @@
-# Panduan Penggunaan dan Instalasi Aplikasi (Atomize Planner Backend)
+# Atomize Planner Backend
 
-Dokumen ini berisi panduan teknis langkah demi langkah mengenai cara menginstal dan menjalankan aplikasi **Atomize Planner Backend** di komputer lokal Anda menggunakan lingkungan standar (Native PHP & MySQL / Composer / Artisan).
+Ini adalah layanan backend untuk aplikasi Atomize Planner, yang dibuat dengan Laravel.
 
----
+## Fitur
 
-## 🛠 Prasyarat Sistem (Prerequisites)
-Sebelum memulai instalasi, pastikan sistem Anda telah terpasang software berikut:
-1. **[Git](https://git-scm.com/downloads)** - Untuk melakukan clone repositori.
-2. **[PHP >= 8.2](https://www.php.net/downloads)** - Bahasa pemrograman backend. Disarankan menggunakan tools seperti XAMPP atau Laragon jika di Windows.
-3. **[Composer](https://getcomposer.org/)** - Package manager untuk PHP.
-4. **[MySQL / MariaDB](https://www.mysql.com/downloads/)** - Engine database.
-5. **[Node.js](https://nodejs.org/) & [PNPM](https://pnpm.io/)** - PNPM digunakan sebagai package manager utama untuk Node.js pada project ini.
-6. **[Postman](https://www.postman.com/)** - Untuk melakukan uji coba endpoint REST API.
+- Otentikasi dan manajemen pengguna
+- Manajemen tugas (Tasks)
+- Memecah tugas menjadi langkah-langkah kecil (Atomize)
+- Sesi fokus (Focus Sessions)
+- Riwayat dan ringkasan produktivitas
 
----
+## Prasyarat
 
-## 🚀 Langkah Instalasi & Setup
+- PHP >= 8.2
+- Composer
+- Node.js & NPM
+- Database (SQLite, MySQL, PostgreSQL, dll.)
 
-### 1. Clone Repositori
-Lakukan clone poyek ini ke direktori kerja Anda dan masuk ke folder proyek:
-```bash
-git clone <URL_REPOSITORY_ANDA>
-cd atomize-planner-backend
-```
+## Cara Instalasi
 
-### 2. Persiapan Environment (.env)
-Salin (copy) file konfigurasi environment dari sampel yang ada:
-```bash
-cp .env.example .env
-```
+1.  **Clone repository ini:**
+    ```bash
+    git clone https://github.com/username/atomize-planner-backend.git
+    cd atomize-planner-backend
+    ```
 
-Buka file `.env` dan sesuaikan kredensial koneksi database Anda (biasanya bawaan XAMPP/Laragon seperti berikut):
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=atomize_planner
-DB_USERNAME=root
-DB_PASSWORD=
-```
-*(Catatan: Pastikan Anda telah membuat database kosong bernama `atomize_planner` di MySQL Anda sebelum lanjut).*
+2.  **Install dependensi PHP:**
+    ```bash
+    composer install
+    ```
 
-### 3. Instalasi Dependensi PHP (Laravel)
-Instal paket dan pustaka sistem Laravel via Composer:
-```bash
-composer install
-```
+3.  **Install dependensi JavaScript:**
+    ```bash
+    npm install
+    ```
 
-### 4. Generate Application Key (Laravel)
-Buat kunci unik untuk keamanan sesi dan enkripsi aplikasi Laravel:
-```bash
-php artisan key:generate
-```
+4.  **Buat file environment:**
+    Salin file `.env.example` menjadi `.env`.
+    ```bash
+    cp .env.example .env
+    ```
 
-### 6. Pengaturan Database
-Aplikasi saat ini telah menyertakan rekap database pada file `database.sql`. Anda dapat:
-- Melakukan import manual file `database.sql` ke dalam database `atomize_planner` menggunakan fitur *Import* phpMyAdmin, DBeaver, atau sejenisnya.
-- **Atau**, apabila Anda ingin mengulang struktur database menggunakan fitur migrasi bawaan Laravel (beserta seeder default):
-  ```bash
-  php artisan migrate:fresh --seed
-  ```
+5.  **Generate kunci aplikasi:**
+    ```bash
+    php artisan key:generate
+    ```
 
-### 7. Menjalankan Aplikasi
-Anda perlu menjalankan backend server dan frontend asset bundler secara bersamaan (dengan membuka dua tab terminal):
+6.  **Konfigurasi database:**
+    Buka file `.env` dan sesuaikan pengaturan database Anda (misalnya, `DB_CONNECTION`, `DB_HOST`, `DB_DATABASE`, dll.). Secara default, aplikasi ini dikonfigurasi untuk menggunakan SQLite.
 
-**Terminal 1 (Backend - Laravel):**
-```bash
-php artisan serve
-```
----
+7.  **Jalankan migrasi dan seeder database:**
+    Perintah ini akan membuat struktur tabel dan mengisi data awal yang diperlukan.
+    ```bash
+    php artisan migrate --seed
+    ```
 
-## 🌐 Mengakses Aplikasi
-Setelah server menyala, aplikasi backend ini dapat diakses secara lokal melalui browser pada alamat default:
-👉 **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
+8.  **Jalankan server pengembangan:**
+    ```bash
+    php artisan serve
+    ```
+    Aplikasi akan berjalan di `http://127.0.0.1:8000`.
 
----
+## Cara Penggunaan
 
-## 🧪 Testing REST API Menggunakan Postman
+Aplikasi ini menyediakan RESTful API. Cara termudah untuk berinteraksi dengan API adalah dengan menggunakan koleksi Postman yang sudah disediakan.
 
-Proyek ini telah disertakan dengan bundel lengkap untuk pengujian API melalui Postman di dalam _root directory_:
-1. File Koleksi: `Atomize Planner.postman_collection.json`
-2. File Environment: `Atomize Planner.postman_environment.json`
+1.  Impor `Atomize Planner.postman_collection.json` ke dalam Postman.
+2.  Impor `Atomize Planner.postman_environment.json` untuk mengatur variabel environment di Postman.
+3.  Pastikan untuk mengatur variabel `base_url` di environment Postman Anda ke `http://127.0.0.1:8000/api/v1`.
 
-**Cara Import ke Postman:**
-1. Buka aplikasi **Postman**.
-2. Klik tombol **Import** (biasanya di kiri atas).
-3. Seret *(drag & drop)* atau pilih langsung kedua file JSON di atas.
-4. Setelah berhasil diimport, lihat bagian kanan atas Postman pada dropdown **Environments**, lalu pilih environment bernama **`Atomize Planner`**.
-5. Pastikan properti "base_url" (jika ada di dalam environment) merujuk pada `http://127.0.0.1:8000` (atau sesuaikan dengan port `artisan serve` Anda).
-6. Anda sekarang bisa mulai mengeksekusi semua request yang telah tersedia di dalam _Collection_.
+### Daftar Endpoint API
+
+Semua endpoint diawali dengan `/api/v1`.
+
+**Otentikasi**
+- `POST /auth/register` - Registrasi pengguna baru.
+- `POST /auth/login` - Login pengguna.
+- `POST /auth/logout` - Logout pengguna (memerlukan otentikasi).
+
+**Profil Pengguna**
+- `GET /profile` - Menampilkan profil pengguna.
+- `PATCH /profile` - Memperbarui profil pengguna.
+- `DELETE /profile` - Menghapus akun pengguna.
+- `POST /profile/avatar` - Mengunggah avatar.
+- `DELETE /profile/avatar` - Menghapus avatar.
+- `POST /profile/change-password` - Mengubah kata sandi.
+
+**Tugas (Tasks)**
+- `GET /tasks` - Mendapatkan semua tugas.
+- `POST /tasks` - Membuat tugas baru.
+- `POST /tasks/atomize` - Memecah tugas menjadi langkah-langkah menggunakan AI.
+- `GET /tasks/{id}` - Mendapatkan detail tugas.
+- `PATCH /tasks/{id}` - Memperbarui tugas.
+- `DELETE /tasks/{id}` - Menghapus tugas.
+
+**Langkah Tugas (Task Steps)**
+- `POST /tasks/{taskId}/steps` - Menambah langkah pada tugas.
+- `PATCH /tasks/{taskId}/steps/{stepId}/toggle` - Mengubah status selesai/belum selesai sebuah langkah.
+- `PATCH /tasks/{task}/steps/{step}` - Memperbarui detail langkah.
+- `DELETE /tasks/{task}/steps/{step}` - Menghapus langkah.
+- `POST /tasks/{taskId}/steps/{stepId}/mark-working` - Menandai langkah yang sedang dikerjakan.
+
+**Sesi Fokus**
+- `POST /focus/sessions` - Memulai sesi fokus baru.
+- `GET /focus/sessions/active` - Mendapatkan sesi fokus yang aktif.
+- `POST /focus/sessions/{session}/complete` - Menyelesaikan sesi fokus.
+- `POST /focus/sessions/{session}/cancel` - Membatalkan sesi fokus.
+- `PATCH /focus/sessions/{session}/settings` - Memperbarui pengaturan sesi fokus.
+
+**Riwayat**
+- `GET /history/summary` - Mendapatkan ringkasan mingguan.
+- `GET /history/completed-tasks` - Mendapatkan daftar tugas yang telah selesai.
