@@ -11,5 +11,3 @@ storage/*.key
 .phpunit.result.cache
 docker-compose.yml
 Dockerfile
-.docker
-EOF
