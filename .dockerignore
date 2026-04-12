@@ -1,0 +1,15 @@
+.git
+.ddev
+node_modules
+vendor
+public/build
+public/hot
+storage/*.key
+.env
+.idea
+.vscode
+.phpunit.result.cache
+docker-compose.yml
+Dockerfile
+.docker
+EOF

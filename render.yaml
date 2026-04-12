@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: atomize-planner-backend
+    env: docker
+    dockerContext: .
+    dockerfilePath: Dockerfile.render
+    plan: starter # Starter plan is required for Disks
+    healthCheckPath: /
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: DB_DATABASE
+        value: /var/data/database.sqlite # Path on the persistent disk
+      - key: LOG_CHANNEL
+        value: stderr
+    disk:
+      name: sqlite-data
+      mountPath: /var/data
+      sizeGB: 1

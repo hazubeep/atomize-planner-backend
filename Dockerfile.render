@@ -1,0 +1,39 @@
+FROM richarvey/php-fpm-nginx-alpine:latest
+
+WORKDIR /var/www/html
+
+# Copy application files
+COPY . .
+
+# Set environment variables for the image
+ENV SKIP_COMPOSER=0 \
+    PHP_ERRORS_STDERR=1 \
+    RUN_SCRIPTS=1 \
+    REAL_IP_HEADER=1 \
+    WEBROOT=/var/www/html/public
+
+# Install PHP dependencies
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+
+# Build assets using Node.js
+# We use a separate stage or just install node here. 
+# richarvey image has node potentially, but let's be sure.
+RUN apk add --no-cache nodejs npm \
+    && npm install \
+    && npm run build \
+    && apk del nodejs npm
+
+# Finalize composer
+RUN composer dump-autoload --optimize --no-dev
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Custom entrypoint script for Render
+COPY .docker/render-entrypoint.sh /usr/local/bin/render-entrypoint
+RUN chmod +x /usr/local/bin/render-entrypoint
+
+# The richarvey image uses its own entrypoint, but we can wrap it or use a script
+# Actually, we can use the RUN_SCRIPTS=1 feature of the image to run a script on start.
+# Or just define our own CMD.
+CMD ["/usr/local/bin/render-entrypoint"]
